@@ -5,5 +5,7 @@ type Connection interface {
 	StartReader()
 	StartWriter()
 	Stop()
-	GetConnId() uint32
+	GetConnId() string
+	//将消息打包发送给写writer
+	SendMsg(uint32, []byte) error
 }

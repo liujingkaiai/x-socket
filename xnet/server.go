@@ -16,7 +16,9 @@ type Server interface {
 	//获取管理连接器
 	GetConnManager() *ConnManager
 	//鉴权认证
-	SetAcceptFunc(func(string) (bool, IdCreater))
+	SetAcceptFunc(func([]byte) (bool, IdCreater))
+	//获取鉴权函数
+	GetAcceptFunc() func([]byte) (bool, IdCreater)
 	GetPool() *sync.Pool
 	//设置路由管理
 	SetDistpatcher(Dispatcher)
@@ -26,6 +28,7 @@ type Server interface {
 	SetPoolSize(uint32)
 	//获取服务运行状态
 	GetStates() States
+	//
 }
 
 type IdCreater interface {

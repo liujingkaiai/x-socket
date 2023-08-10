@@ -19,6 +19,7 @@ type PingHandler struct {
 
 func (p *PingHandler) Ping(req xnet.Request) {
 	fmt.Printf("rec %v %s\n", req.GetMsgID(), req.GetData())
+	req.GetConnection().SendMsg(req.GetMsgID(), []byte("pong"))
 }
 
 func main() {

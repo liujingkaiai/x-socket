@@ -20,12 +20,14 @@ func main() {
 ```
 
 
-###路由
+### 路由
 
 消息格式 uint32 + 消息内容   |uint32|消息内容  
 ```go 
 // 使用方法 
 s := xnet.NewDefault()  //设置httpServer
-s.AddRouter(1, func(iface.Connection , data)) 
+s.AddRouter(1, func(xnet.Request)) 
+
 
 ```
+

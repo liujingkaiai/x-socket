@@ -37,7 +37,7 @@ type Server struct {
 	shakeFaieldFunc func(w http.ResponseWriter)
 	connManager     *xnet.ConnManager
 	idFacotry       *idManager
-	acceptFucn      func(string) (bool, xnet.IdCreater)
+	acceptFucn      func([]byte) (bool, xnet.IdCreater)
 	pool            *sync.Pool
 	dispatch        xnet.Dispatcher
 	states          xnet.States
@@ -205,6 +205,10 @@ func (s *Server) GetID() int64 {
 	return s.id
 }
 
-func (s *Server) SetAcceptFunc(accept func(string) (bool, xnet.IdCreater)) {
+func (s *Server) SetAcceptFunc(accept func([]byte) (bool, xnet.IdCreater)) {
 	s.acceptFucn = accept
+}
+
+func (s *Server) GetAcceptFunc() func([]byte) (bool, xnet.IdCreater) {
+	return s.acceptFucn
 }

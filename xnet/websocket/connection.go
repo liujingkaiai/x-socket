@@ -3,6 +3,7 @@ package websocket
 import (
 	"fmt"
 	"io"
+	"strconv"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -10,7 +11,7 @@ import (
 )
 
 type Connection struct {
-	id      uint32
+	id      string
 	conn    *websocket.Conn
 	isClose bool
 	closeC  chan struct{}
@@ -21,7 +22,7 @@ type Connection struct {
 
 func NewConnection(id uint32, conn *websocket.Conn, server xnet.Server) xnet.Connection {
 	return &Connection{
-		id:       id,
+		id:       strconv.Itoa(int(id)),
 		conn:     conn,
 		closeC:   make(chan struct{}),
 		wsServer: server,
@@ -36,10 +37,29 @@ func (c *Connection) StartReader() {
 	//设置消息最大size
 	c.conn.SetReadLimit(int64(c.wsServer.GetServerOpt().MaxMessageSize))
 	c.conn.SetPongHandler(func(appData string) error {
-		fmt.Println("sdsd")
+		c.conn.WriteMessage(websocket.TextMessage, []byte("ping"))
 		c.conn.SetReadDeadline(time.Now().Add(c.wsServer.GetServerOpt().PongWait))
 		return nil
 	})
+
+	//如果存在鉴权
+	if c.wsServer.GetAcceptFunc() != nil {
+		_, data, err := c.conn.ReadMessage()
+		if err != nil {
+			fmt.Println("accept read msg err:", err)
+			return
+		}
+		acceptFunc := c.wsServer.GetAcceptFunc()
+		suc, IdCreater := acceptFunc(data)
+		//鉴权失败
+		if !suc {
+			c.conn.Close()
+			return
+		}
+		c.id = IdCreater.Id()
+	}
+	//链接管理器添加链接
+	c.wsServer.GetConnManager().Add(c)
 
 	for {
 		t, data, err := c.conn.ReadMessage()
@@ -79,10 +99,20 @@ func (c *Connection) StartReader() {
 
 func (c *Connection) StartWriter() {
 
+	for {
+		select {
+		case msg := <-c.msg:
+			if err := c.conn.WriteMessage(websocket.BinaryMessage, msg); err != nil {
+				fmt.Println("Send data error,", err, "Conn Writer exit")
+				return
+			}
+		case <-c.closeC:
+			return
+		}
+	}
 }
 
 func (c *Connection) Start() {
-	c.wsServer.GetConnManager().Add(c)
 	go c.StartReader()
 	go c.StartWriter()
 	select {}
@@ -97,8 +127,20 @@ func (c *Connection) Stop() {
 	c.conn.Close()
 	c.wsServer.GetConnManager().Remove(c)
 	close(c.closeC)
+	close(c.msg)
 }
 
-func (c *Connection) GetConnId() uint32 {
+func (c *Connection) GetConnId() string {
 	return c.id
+}
+
+func (c *Connection) SendMsg(id uint32, data []byte) error {
+	wire := Wire{}
+	m, err := wire.Pack(NewMessage(id, data))
+	if err != nil {
+		// 打包失败
+		return err
+	}
+	c.msg <- m
+	return nil
 }

@@ -7,13 +7,13 @@ import (
 )
 
 type ConnManager struct {
-	connections map[uint32]Connection
+	connections map[string]Connection
 	m           sync.RWMutex
 }
 
 func NewConnManager() *ConnManager {
 	return &ConnManager{
-		connections: make(map[uint32]Connection),
+		connections: make(map[string]Connection),
 	}
 }
 
@@ -33,7 +33,7 @@ func (cm *ConnManager) Remove(conn Connection) {
 }
 
 // 根据Conn获取链接
-func (cm *ConnManager) Get(connID uint32) (Connection, error) {
+func (cm *ConnManager) Get(connID string) (Connection, error) {
 	cm.m.RLock()
 	defer cm.m.Unlock()
 	if conn, ok := cm.connections[connID]; ok {

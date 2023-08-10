@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/gorilla/websocket"
 	ws "github.com/liujingkaiai/x-socket/xnet/websocket"
@@ -21,36 +22,37 @@ func main() {
 
 	fmt.Println("已连接到WebSocket服务器")
 
+	wire := ws.Wire{}
+
 	// 启动一个协程用于接收和处理服务器发送的消息
 	go func() {
 		for {
-			_, msg, err := conn.ReadMessage()
-			if err != nil {
-				log.Println("读取消息失败：", err)
-				return
+			t, msg, err := conn.ReadMessage()
+			if t == websocket.BinaryMessage {
+				_msg, _err := wire.Unpack(msg)
+				if err != nil {
+					fmt.Println("unpack msg err:", _err)
+					continue
+				}
+				fmt.Printf("接收<-------消息ID:%d 内容:%s \n", _msg.GetMsgId(), _msg.GetData())
 			}
-			fmt.Printf("收到消息：%s\n", msg)
 		}
 	}()
 
 	// 循环发送消息到服务器
 	for {
 
-		conn.WriteMessage(websocket.PingMessage, []byte("ping"))
-
-		var msg string
-		fmt.Print("输入消息：")
-		fmt.Scanln(&msg)
-		wire := ws.Wire{}
-
-		bt, err := wire.Pack(ws.NewMessage(0, []byte(msg)))
+		bt, err := wire.Pack(ws.NewMessage(0, []byte("ping")))
 		if err != nil {
 			fmt.Println(err)
 		}
+		fmt.Printf("发送消息===>%s\n", bt)
 		err = conn.WriteMessage(websocket.BinaryMessage, bt)
 		if err != nil {
 			log.Println("发送消息失败：", err)
 			return
 		}
+
+		time.Sleep(time.Second)
 	}
 }

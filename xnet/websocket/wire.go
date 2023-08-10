@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
-	"fmt"
 
 	"github.com/liujingkaiai/x-socket/xnet"
 )
@@ -27,7 +26,6 @@ func (w *Wire) Pack(msg xnet.Message) ([]byte, error) {
 	if err := binary.Write(dataBuff, binary.LittleEndian, msg.GetData()); err != nil {
 		return nil, err
 	}
-	fmt.Println("pack : %v", dataBuff.Bytes())
 
 	return dataBuff.Bytes(), nil
 }

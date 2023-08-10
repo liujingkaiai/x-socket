@@ -49,8 +49,16 @@ const (
 	Hello uint32 iota
 )
 
+//定义处理函数 
+func HelloHandler(req xnet.Request) {
+	// Hello是消息id  []byte 是要发送的数据
+	req.SendMsg(Hello , []byte("world"))
+}
+
+
 // 使用方法 
 s := xnet.NewDefault()  //设置httpServer
-s.AddRouter(Hello, func(iface.Connection , data)) 
+s.AddRouter(Hello, ) 
 
 ```
+

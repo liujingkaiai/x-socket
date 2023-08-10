@@ -10,7 +10,6 @@ import (
 )
 
 func main() {
-
 	wsserver := websocket.Default()
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		temp := template.Must(template.ParseFiles("./ws.html"))
