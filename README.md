@@ -1,13 +1,13 @@
-### 基于gorilla/websocket/blob库进行二次封装 
+### 基于gorilla/websocket库进行二次封装 
 - 自定义路由 
-- 自定义鉴权，自定义描述符id目前支持 int  int8  int32  int64  uint8  uint32  uint64  string
+- 自定义鉴权，自定义描述符id目前支持 string
 - 链接管理器
 - 限制连接数 
-- 中间件
+- 单聊
 - wooker pool 
 - task queue 
 - 自定义用户tag 
-- 向某种tag标签的用户发送消息
+- 发布订阅模式，向某种tag标签的用户发送消息
 
 
 ### todo 
@@ -40,7 +40,7 @@ func main() {
 ```
 
 
-###路由
+### 路由
 
 消息格式 消息id + 消息内容   |uint32|消息内容二进制
 ```go 
@@ -49,16 +49,17 @@ const (
 	Hello uint32 iota
 )
 
-//定义处理函数 
+//定义路由
 func HelloHandler(req xnet.Request) {
-	// Hello是消息id  []byte 是要发送的数据
+	//  向连接写入消息  id:0  写入内容 world
 	req.SendMsg(Hello , []byte("world"))
 }
 
 
-// 使用方法 
-s := xnet.NewDefault()  //设置httpServer
-s.AddRouter(Hello, ) 
+// 实例化 webscoket server 
+s := xnet.NewDefault() 
+// 设置路由 id:0 处理方法  HelloWorld
+s.AddRouter(Hello, HelloHandler) 
 
 ```
 

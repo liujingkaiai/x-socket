@@ -58,7 +58,7 @@ func (c *Connection) StartReader() {
 		}
 		c.id = IdCreater.Id()
 	}
-	//链接管理器添加链接
+
 	c.wsServer.GetConnManager().Add(c)
 
 	for {

@@ -1,6 +1,7 @@
 package websocket
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"sync"
@@ -9,6 +10,8 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/liujingkaiai/x-socket/xnet"
 )
+
+var ErrConnNotFound = errors.New("conn not found in server !")
 
 type empty struct{}
 
@@ -41,6 +44,7 @@ type Server struct {
 	pool            *sync.Pool
 	dispatch        xnet.Dispatcher
 	states          xnet.States
+	mux             sync.RWMutex
 }
 
 func NewServer(opt *xnet.ServerOption) *Server {
@@ -152,6 +156,29 @@ func (s *Server) SetPoolSize(size uint32) {
 
 func (s *Server) GetStates() xnet.States {
 	return s.states
+}
+
+// 根据用户id 获取单个链接id
+func (s *Server) GetConnectionByID(id string) (xnet.Connection, bool) {
+	if len(id) == 0 {
+		return nil, false
+	}
+	s.mux.RLock()
+	defer s.mux.RUnlock()
+	conn, err := s.connManager.Get(id)
+	if err != nil {
+		return conn, false
+	}
+	return conn, true
+}
+
+func (s *Server) ChatWith(uid string, msgID uint32, data []byte) error {
+	conn, ok := s.GetConnectionByID(uid)
+	if !ok {
+		return ErrConnNotFound
+	}
+
+	return conn.SendMsg(msgID, data)
 }
 
 // id管理

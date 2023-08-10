@@ -1,6 +1,8 @@
 package xnet
 
-import "sync"
+import (
+	"sync"
+)
 
 type States uint8
 
@@ -28,7 +30,8 @@ type Server interface {
 	SetPoolSize(uint32)
 	//获取服务运行状态
 	GetStates() States
-	//
+	//聊天
+	Chat
 }
 
 type IdCreater interface {
@@ -44,4 +47,11 @@ type Service interface {
 	Serve()
 	//停止
 	Stop()
+}
+
+type Chat interface {
+	//根据用户id 获取单个链接id
+	GetConnectionByID(string) (Connection, bool)
+	//单聊
+	ChatWith(uid string, msgID uint32, data []byte) error
 }
