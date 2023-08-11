@@ -47,7 +47,7 @@ func (d *Disptach) StartWookerPool(poosize uint32, queueLent uint32) {
 }
 
 func (d *Disptach) startOneWorker(id int, ch chan xnet.Request) {
-	fmt.Println("Worker ID = ", id, " is started....")
+	//fmt.Println("Worker ID = ", id, " is started....")
 	for {
 		select {
 		case req := <-ch:

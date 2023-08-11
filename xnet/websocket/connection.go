@@ -72,8 +72,7 @@ func (c *Connection) StartReader() {
 
 		switch t {
 		case websocket.PingMessage:
-			fmt.Println(2323)
-			c.conn.WriteMessage(websocket.PongMessage, nil)
+			c.conn.WriteMessage(websocket.PongMessage, []byte{})
 		case websocket.BinaryMessage:
 			wire := Wire{}
 			msg, err := wire.Unpack(data)

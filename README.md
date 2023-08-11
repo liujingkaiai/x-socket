@@ -9,10 +9,9 @@
 - 自定义用户tag 
 - 发布订阅模式，向某种tag标签的用户发送消息
 
-
 ### todo 
 - context上下文
-- 数据校验
+- 数据校验validator
 - 负载均衡
 - 跨服务通信
 - 日志收集
@@ -30,11 +29,12 @@ import (
 )
 
 func main() {
-	s := xnet.NewDefault()  //设置httpServer
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-
-	})
+	//实例化websocket 服务
+	s := xnet.NewDefault()  
+	// 设置ws路径
 	http.HandleFunc("/ws", s.Shake)
+	//开启http服务
+	http.ListenAndServe(":9997", nil)
 }
 
 ```
@@ -58,7 +58,7 @@ func HelloHandler(req xnet.Request) {
 
 // 实例化 webscoket server 
 s := xnet.NewDefault() 
-// 设置路由 id:0 处理方法  HelloWorld
+// 设置路由 id:0 处理方法  HelloHandler
 s.AddRouter(Hello, HelloHandler) 
 
 ```

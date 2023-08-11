@@ -44,7 +44,6 @@ type Server struct {
 	pool            *sync.Pool
 	dispatch        xnet.Dispatcher
 	states          xnet.States
-	mux             sync.RWMutex
 }
 
 func NewServer(opt *xnet.ServerOption) *Server {
@@ -163,8 +162,6 @@ func (s *Server) GetConnectionByID(id string) (xnet.Connection, bool) {
 	if len(id) == 0 {
 		return nil, false
 	}
-	s.mux.RLock()
-	defer s.mux.RUnlock()
 	conn, err := s.connManager.Get(id)
 	if err != nil {
 		return conn, false
@@ -174,7 +171,7 @@ func (s *Server) GetConnectionByID(id string) (xnet.Connection, bool) {
 
 func (s *Server) ChatWith(uid string, msgID uint32, data []byte) error {
 	conn, ok := s.GetConnectionByID(uid)
-	if !ok {
+	if !ok || conn == nil {
 		return ErrConnNotFound
 	}
 

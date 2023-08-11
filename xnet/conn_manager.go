@@ -35,7 +35,7 @@ func (cm *ConnManager) Remove(conn Connection) {
 // 根据Conn获取链接
 func (cm *ConnManager) Get(connID string) (Connection, error) {
 	cm.m.RLock()
-	defer cm.m.Unlock()
+	defer cm.m.RUnlock()
 	if conn, ok := cm.connections[connID]; ok {
 		return conn, nil
 	}
