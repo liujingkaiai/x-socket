@@ -29,8 +29,7 @@ func (id *IdCreater) Id() string {
 	return string(id.data)
 }
 
-type ChatHandler struct {
-}
+type ChatHandler struct{}
 
 func (c *ChatHandler) ChatTo(req xnet.Request) {
 

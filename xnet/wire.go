@@ -5,3 +5,8 @@ type Wrie interface {
 	Pack(Message) ([]byte, error)
 	Unpack([]byte) (Message, error)
 }
+
+type CodeC interface {
+	Marshal(any) ([]byte, error)
+	Unmarshal([]byte, any) error
+}

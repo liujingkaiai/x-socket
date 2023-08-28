@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -11,22 +12,24 @@ import (
 )
 
 type Connection struct {
-	id      string
-	conn    *websocket.Conn
-	isClose bool
-	closeC  chan struct{}
-	msg     chan []byte
-
-	wsServer xnet.Server
+	id         string
+	conn       *websocket.Conn
+	isClose    bool
+	closeC     chan struct{}
+	msg        chan []byte
+	m          *sync.RWMutex
+	attributes map[string]any
+	wsServer   xnet.Server
 }
 
 func NewConnection(id uint32, conn *websocket.Conn, server xnet.Server) xnet.Connection {
 	return &Connection{
-		id:       strconv.Itoa(int(id)),
-		conn:     conn,
-		closeC:   make(chan struct{}),
-		wsServer: server,
-		msg:      make(chan []byte),
+		id:         strconv.Itoa(int(id)),
+		conn:       conn,
+		closeC:     make(chan struct{}),
+		wsServer:   server,
+		msg:        make(chan []byte),
+		attributes: make(map[string]any, 0),
 	}
 }
 
@@ -142,4 +145,17 @@ func (c *Connection) SendMsg(id uint32, data []byte) error {
 	}
 	c.msg <- m
 	return nil
+}
+
+func (c *Connection) SetAttribute(key string, val any) {
+	c.m.Lock()
+	c.attributes[key] = val
+	c.m.Unlock()
+}
+
+func (c *Connection) GetAttribute(key string) (any, bool) {
+	c.m.RLock()
+	defer c.m.RUnlock()
+	val, ok := c.attributes[key]
+	return val, ok
 }

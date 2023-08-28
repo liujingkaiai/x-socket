@@ -3,19 +3,21 @@
 - 自定义鉴权，自定义描述符id目前支持 string
 - 链接管理器
 - 限制连接数 
-- 单聊
+- 支持单聊
 - wooker pool 
 - task queue 
 - 自定义用户tag 
 - 发布订阅模式，向某种tag标签的用户发送消息
 
 ### todo 
-- context上下文
+- 自定义数据解析器，json,protobuf 
 - 数据校验validator
-- 负载均衡
+- context上下文
+- 负载均衡 Gateway 网关
 - 跨服务通信
 - 日志收集
 - 链路追踪
+
 
 ### 使用方法 
 
@@ -63,3 +65,17 @@ s.AddRouter(Hello, HelloHandler)
 
 ```
 
+
+### 单聊 
+
+```go 
+
+s := xnet.NewDefault() 
+
+// uid 链接id  msgID 消息类型 data 消息内容	
+s.ChatWith(uid, msgID,data); 
+
+
+```
+
+### 自定义tag,发布订阅

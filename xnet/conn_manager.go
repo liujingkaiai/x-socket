@@ -9,6 +9,7 @@ import (
 type ConnManager struct {
 	connections map[string]Connection
 	m           sync.RWMutex
+	topicM      sync.RWMutex
 }
 
 func NewConnManager() *ConnManager {
