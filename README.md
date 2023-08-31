@@ -4,6 +4,7 @@
 - 链接管理器
 - 限制连接数 
 - 支持单聊
+- 自定义连接属性
 - wooker pool 
 - task queue 
 - 自定义用户tag 

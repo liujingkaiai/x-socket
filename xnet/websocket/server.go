@@ -53,8 +53,9 @@ func NewServer(opt *xnet.ServerOption) *Server {
 		id:   opt.MachineID,
 		opts: opt,
 		upgrader: websocket.Upgrader{
-			ReadBufferSize:  int(opt.ReadBufferSize),
-			WriteBufferSize: int(opt.WriteBufferSize),
+			ReadBufferSize:    int(opt.ReadBufferSize),
+			WriteBufferSize:   int(opt.WriteBufferSize),
+			EnableCompression: opt.CompressionExtensions,
 		},
 		dispatch:    NewDispatch(),
 		connManager: xnet.NewConnManager(),
