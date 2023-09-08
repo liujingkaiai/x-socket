@@ -17,6 +17,7 @@ type Connection struct {
 	isClose    bool
 	closeC     chan struct{}
 	msg        chan []byte
+	buffChan   chan []byte
 	m          *sync.RWMutex
 	attributes map[string]any
 	wsServer   xnet.Server
@@ -30,6 +31,7 @@ func NewConnection(id uint32, conn *websocket.Conn, server xnet.Server) xnet.Con
 		wsServer:   server,
 		msg:        make(chan []byte),
 		attributes: make(map[string]any, 0),
+		buffChan:   make(chan []byte, 128),
 	}
 }
 
@@ -108,6 +110,11 @@ func (c *Connection) StartWriter() {
 				fmt.Println("Send data error,", err, "Conn Writer exit")
 				return
 			}
+		case msg := <-c.buffChan:
+			if err := c.conn.WriteMessage(websocket.BinaryMessage, msg); err != nil {
+				fmt.Println("Send buffer data error,", err, "Conn Writer exit")
+				return
+			}
 		case <-c.closeC:
 			return
 		}
@@ -144,6 +151,16 @@ func (c *Connection) SendMsg(id uint32, data []byte) error {
 		return err
 	}
 	c.msg <- m
+	return nil
+}
+
+func (c *Connection) SendBufferMesg(id uint32, data []byte) error {
+	wire := new(Wire)
+	m, err := wire.Pack(NewMessage(id, data))
+	if err != nil {
+		return err
+	}
+	c.buffChan <- m
 	return nil
 }
 
