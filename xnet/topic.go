@@ -32,6 +32,7 @@ func (t *Topic) AddTag(tag string) chan Message {
 			msgChan:   make(chan Message, 0),
 			closeChan: make(chan struct{}, 0),
 		}
+		t.channels.Store(tag, sub)
 	} else {
 		sub = old.(*subscriber)
 	}
@@ -57,6 +58,15 @@ func (t *Topic) AddTag(tag string) chan Message {
 		}
 	}(sub, t.connManager)
 	return sub.msgChan
+}
+
+func (t *Topic) ChatWithTag(tag string, message Message) error {
+	subscriber, ok := t.getsubscribe(tag)
+	if !ok {
+		return fmt.Errorf("tag:%s err:%w", tag, ErrTagRecordNotFound)
+	}
+	subscriber.msgChan <- message
+	return nil
 }
 
 func (t *Topic) AddSubscribe(tag string, conn Connection) error {

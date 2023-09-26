@@ -9,6 +9,7 @@
 - task queue 
 - 自定义用户tag 
 - 发布订阅模式，向某种tag标签的用户发送消息
+- 数据压缩
 
 ### todo 
 - 自定义数据解析器，json,protobuf 
